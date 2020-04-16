@@ -52,6 +52,28 @@ ssize_t asprintf(char **string, const char *fmt, ...)
 }
 
 
+int unescape_append(char **dest, char *src)
+{
+	size_t i;
+
+
+	for(i = 0; i < strlen(src); ++i)
+	{
+		switch(src[i])
+		{
+			case '\"':
+			case '\'':
+				asprintf(dest, "%s\\%c", *dest, src[i]);
+			break;
+			default:
+				asprintf(dest, "%s%c", *dest, src[i]);
+		}
+	}
+
+	return 0;
+}
+
+
 char *space_string(char *space, size_t amount)
 {
 	size_t i;
@@ -113,8 +135,9 @@ int convert(char **str, ssize_t *size, json_t *json, size_t depth)
 			asprintf(str, "%s%s]\n", *str, space_string(space, depth));
 		break;
 		case JSON_STRING:
-			/* TODO escape this */
-			asprintf(str, "%s\"%s\"", *str, json_string_value(json));
+			asprintf(str, "%s\"", *str);
+			unescape_append(str, json_string_value(json));
+			asprintf(str, "%s\"", *str);
 		break;
 		case JSON_INTEGER:
 			in = json_integer_value(json);
