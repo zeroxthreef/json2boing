@@ -1,2 +1,2 @@
-gcc -o json2boing src/json2boing.c
+gcc -o json2boing src/json2boing.c -ljansson
 pause
